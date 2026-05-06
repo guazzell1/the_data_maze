@@ -83,3 +83,16 @@ int remove_first_treasure (Backpack *b){
     return val;                // returns the value that was thrown away 
 }
  
+// ================== MAZE ==================
+// structure that holds the entire game map
+typedef struct {
+    char cells[MAX_CELLS];      // The real, static map (walls, original traps, etc.)
+    char display[MAX_CELLS];    // The visual map (where we draw the player and the '.' trail)
+    int rows, cols;             // Actual dimensions of the maze read from the file
+    int start, exit;            // Stores the index positions of Start ('P') and Exit ('S')
+} Maze;
+
+// Mathematical function: converts 2D coordinates (row and col) into a 1D array position.
+int get_index(Maze *maze, int row, int col) {
+    return (row * maze->cols) + col;
+}
