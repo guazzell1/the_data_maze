@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+// Change the code based on the operating system you are using
+#ifdef _WIN32 
+    #include <windows.h> 
+    #define SLEEP(ms) Sleep(ms) 
+    #define CLEAR "cls"         
+#else 
+    #include <unistd.h>  
+    #define SLEEP(ms) usleep((ms) * 1000) 
+    #define CLEAR "clear"                 
+#endif
+
+#define MAX_ROWS 40
+#define MAX_COLS 40
+#define MAX_CELLS (MAX_ROWS * MAX_COLS)
+#define DELAY_MS 150
+
+//====== Backpack ======
+
+typedef struct Treasure {
+    int value;
+    struct Treasure *next; // saves the location of the next treasure
+} Treasure;
+
+typedef struct Backpack {
+    int size;
+    int total_value;
+    Treasure *start; // points to the first item
+} Backpack; 
+
+// initialize the backpack
+void backpack_init(Backpack *b){    // without the pointer, the code would produce a temp copy of the backpack, which has no use for us
+    b->start = NULL;
+    b->size = 0;            // no items 
+    b->total_value = 0;     // no value
+}
+
+void add_backpack(Backpack *b, int value){  // original backpack + value of the treasure we found
+    Treasure *new = malloc(sizeof(Treasure));   // 'new' gets the location of the "space" malloc returned
+    new->value = value;     // stores the treasure's value in "value"
+    new->next = NULL;       // initial state
+
+
+    if(
+        !b->start   // if the backpack is empty
+        ||          //OR
+        value < b->start->value     // current treasure is less than first treasure
+    ){
+        new->next = b->start; // new treasure points to the "older" first treasure/initial state
+        b->start = new;       // the start of the backpack now points to the new treasure
+    } else {    // if it is not the smallest one, search for the correct placement in the list
+        Treasure *cur = b->start; // auxiliary temporary variable
+
+        // runs through the list until it finds correct placement, or until the list is over
+        while(
+            cur->next   // is there anything next?
+            &&
+            cur->next->value <= value // is the next treasure's value smaller than or equal to the new one?
+        )
+            cur = cur->next; // if the answer to both questions is "yes", go to the next treasure
+        // fits the new treasure properly in the list
+        new->next = cur->next; 
+        cur->next = new;
+    }
+    b->size ++;
+    b->total_value += value;
+}
+
+// in case we fall into a trap, removes the least valuable treasure from the backpack
+int remove_first_treasure (Backpack *b){
+    if (!b->start) return -1; // if the backpack is already empty, dont change anything
+
+    Treasure *temp = b->start; // first treasure
+    int val = temp->value;     // save its value
+    b->start = temp->next;     // backpack now starts from the second treasure
+    free(temp);                // free the memory of the removed treasure
+    b->size--;                 // reduce the size of the backpack
+    b->total_value -= val;     // subtract the thrown away value from the total
+    return val;                // returns the value that was thrown away 
+}
+ 
