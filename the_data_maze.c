@@ -209,7 +209,6 @@ int search (Maze *maze, Backpack *b){
 
     // only stops when finding the exit or realizing it's impossible.
     while (1) {
-        // NOTE: make sure you translate the 'exibir' function to 'display' later!
         display(maze, b, step++); // draws the screen
         SLEEP(DELAY_MS);          // pause for the animation
 
